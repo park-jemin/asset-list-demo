@@ -30,10 +30,14 @@ export default function LoginPage() {
 
   return (
     <main className="relative flex min-h-screen min-w-80 flex-col bg-background">
-      <div className="flex h-screen w-full flex-col items-center justify-center gap-16 bg-background px-4">
-        <Card as="form" onSubmit={handleSubmit} className="w-full max-w-sm">
+      <div className="flex h-screen w-full flex-col items-center gap-16 bg-background pt-16 sm:justify-center sm:px-4 sm:pt-0">
+        <Card
+          as="form"
+          onSubmit={handleSubmit}
+          className="w-full border-none sm:max-w-sm sm:border-solid"
+        >
           <CardHeader>
-            <CardTitle as="h1" className="text-2xl">
+            <CardTitle as="h1" className="text-3xl">
               Login
             </CardTitle>
             <CardDescription>Enter your email below to login to your account.</CardDescription>
