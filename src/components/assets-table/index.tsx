@@ -21,9 +21,11 @@ import { FilterMenu } from './filter-menu';
 import { Pagination } from './pagination';
 import { esgRatings, formatChange, formatMarketCap } from './utils';
 
+import { useMediaQuery } from '@/hooks/use-media-query';
 import type { ESGRating, Stock } from '@/types';
 
-const ITEMS_PER_PAGE = 10;
+const DEFAULT_ITEMS_PER_PAGE = 10;
+const MOBILE_ITEMS_PER_PAGE = 5;
 
 type Props = {
   stocks: Stock[];
@@ -215,6 +217,9 @@ const AssetRow = memo(({ stock }: { stock: Stock }) => (
 ));
 
 export function AssetsTable({ stocks, sectors }: Props) {
+  const isMobile = useMediaQuery('(max-width: 640px)');
+  const itemsPerPage = isMobile ? MOBILE_ITEMS_PER_PAGE : DEFAULT_ITEMS_PER_PAGE;
+
   const [searchTerm, setSearchTerm] = useState('');
   const [sort, setSort] = useState<{ column: keyof Stock; direction: 'asc' | 'desc' }>({
     column: 'ticker',
@@ -235,7 +240,7 @@ export function AssetsTable({ stocks, sectors }: Props) {
     page,
     setPage,
     totalPages,
-  } = usePagination(searchResults, { itemsPerPage: ITEMS_PER_PAGE });
+  } = usePagination(searchResults, { itemsPerPage });
 
   const handleSort = (column: keyof Stock) => {
     if (column === sort.column) {
@@ -291,7 +296,7 @@ export function AssetsTable({ stocks, sectors }: Props) {
                   current={page}
                   totalPages={totalPages}
                   totalItems={searchResults.length}
-                  itemsPerPage={ITEMS_PER_PAGE}
+                  itemsPerPage={itemsPerPage}
                   onChange={setPage}
                 />
               </TableCell>
