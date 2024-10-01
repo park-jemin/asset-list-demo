@@ -13,12 +13,20 @@ const ttl = 5 * 60 * 1000; // 5 minutes
 // Really basic auth hook to simulate login/logout. Preserves the session on the current page.
 export function useAuthentication() {
   const [token, setToken, removeToken] = useSessionStorage<AuthToken | undefined>(
-    'asset-demo-auth',
+    'stock-demo-auth',
     undefined
   );
 
   const login = useCallback(
-    ({ email, password }: { email: string; password: string }) => {
+    ({
+      email,
+      password,
+      onSuccess,
+    }: {
+      email: string;
+      password: string;
+      onSuccess?: () => void;
+    }) => {
       if (email !== DEMO_EMAIL || password !== DEMO_PASSWORD) {
         return;
       }
@@ -26,13 +34,19 @@ export function useAuthentication() {
       const now = new Date();
 
       setToken({ expires: now.getTime() + ttl });
+
+      onSuccess?.();
     },
     [setToken]
   );
 
-  const logout = useCallback(() => {
-    removeToken();
-  }, [removeToken]);
+  const logout = useCallback(
+    ({ onSuccess }: { onSuccess?: () => void } = {}) => {
+      removeToken();
+      onSuccess?.();
+    },
+    [removeToken]
+  );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: we know what we're doing
   useEffect(() => {
