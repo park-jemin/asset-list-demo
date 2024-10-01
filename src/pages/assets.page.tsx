@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import { AssetsTable } from '@/components/assets-table';
 import { Button } from '@/components/ui/button';
 import { useAuthentication } from '@/hooks/use-authentication';
@@ -8,6 +10,10 @@ const sectors = [...new Set(stocks.map((stock) => stock.sector))];
 
 export default function AssetsPage() {
   const { logout } = useAuthentication();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <main className="container mx-auto min-w-80 py-10">
