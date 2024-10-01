@@ -1,7 +1,11 @@
+import { Suspense, lazy } from 'react';
+
 import { useAuthentication } from '@/hooks/use-authentication';
 
-import AssetsPage from '@/pages/assets.page';
-import LoginPage from '@/pages/login.page';
+import LoadingPage from './pages/loading.page';
+import LoginPage from './pages/login.page';
+
+const AssetsPage = lazy(() => import('./pages/assets.page'));
 
 function App() {
   const { isAuthenticated } = useAuthentication();
@@ -10,7 +14,11 @@ function App() {
     return <LoginPage />;
   }
 
-  return <AssetsPage />;
+  return (
+    <Suspense fallback={<LoadingPage />}>
+      <AssetsPage />
+    </Suspense>
+  );
 }
 
 export default App;
