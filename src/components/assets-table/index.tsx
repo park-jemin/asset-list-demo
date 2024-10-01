@@ -3,7 +3,7 @@ import { memo, useCallback, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Popover, PopoverTrigger } from '@/components/ui/popover';
 import {
   Table,
   TableBody,
@@ -272,9 +272,7 @@ export function AssetsTable({ stocks, sectors }: Props) {
             </Button>
           </PopoverTrigger>
 
-          <PopoverContent className="w-80">
-            <FilterMenu sectors={sectors} onApply={applyFilters} />
-          </PopoverContent>
+          <FilterMenu className="w-80" sectors={sectors} onApply={applyFilters} />
         </Popover>
       </div>
 

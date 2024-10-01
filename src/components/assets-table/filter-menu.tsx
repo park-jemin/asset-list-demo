@@ -7,6 +7,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { PopoverClose, PopoverContent } from '@/components/ui/popover';
 import { useState } from 'react';
 
 import { esgRatings } from './utils';
@@ -15,11 +16,12 @@ import type { ESGRating } from '@/types';
 import { ESGBadge } from './esg-badge';
 
 type Props = {
+  className?: string;
   sectors: string[];
   onApply: (filters: { sectors: string[]; esg: ESGRating[] }) => void;
 };
 
-export function FilterMenu({ sectors, onApply }: Props) {
+export function FilterMenu({ sectors, onApply, className }: Props) {
   const [tempSectorFilters, setTempSectorFilters] = useState<string[]>([]);
   const [tempEsgFilters, setTempEsgFilters] = useState<ESGRating[]>([]);
 
@@ -28,7 +30,7 @@ export function FilterMenu({ sectors, onApply }: Props) {
   };
 
   return (
-    <>
+    <PopoverContent className={className}>
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="sectors">
           <AccordionTrigger>Sectors</AccordionTrigger>
@@ -83,9 +85,11 @@ export function FilterMenu({ sectors, onApply }: Props) {
         </AccordionItem>
       </Accordion>
 
-      <Button onClick={handleClickApply} className="mt-4 w-full">
-        Apply Filters
-      </Button>
-    </>
+      <PopoverClose asChild>
+        <Button onClick={handleClickApply} className="mt-4 w-full">
+          Apply Filters
+        </Button>
+      </PopoverClose>
+    </PopoverContent>
   );
 }
