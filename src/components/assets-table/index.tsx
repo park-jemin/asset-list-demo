@@ -255,7 +255,7 @@ export function AssetsTable({ stocks, sectors }: Props) {
   }, []);
 
   return (
-    <section className="space-y-4 p-4">
+    <section className="space-y-4 p-3 sm:p-4">
       <div className="flex flex-col gap-4 sm:flex-row">
         <Input
           type="text"
