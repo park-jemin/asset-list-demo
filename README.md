@@ -15,9 +15,9 @@ Note that data (in `src/assets/stock-data.mock.ts`) is ChatGPT-generated. ESG sc
 ## Known Issues
 
 1. Due to the nature of GitHub Pages, while rewriting to history/location seems to work fine (and would work fine if deployed elsewhere), when attempting to navigate directly to the route that's written (e.g., `.../asset-list-demo/assets`) it will fail as it queries GitHub's resource for that route (i.e., trying to fetch the deployment at that route), rather than defaulting to the "base" deployment of said route (in this case, the current deployment). This is also the case for refreshes.
-   - In this case, I think it's better just to drop the routing aspect entirely and stick to the SPA (ugh)
+   - Decided to drop the "routing" entirely - but if needed, this could be deployed elsewhere (or ran locally) with routing logic.
 2. Data tables are always wonky in mobile, but there appears to be an issue where the window is slightly offset when entering the assets page. Not sure why this is.
-   - One resolution may be to force a scroll up on load. Another may be to reduce the size of the pages on mobile. Gonna try both. 
+   - Limited number of rows displayed per page on mobile to 5, and forced a scroll up. This helps, but not a complete resolution.
 
 ## Development
 
