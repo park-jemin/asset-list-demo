@@ -1,3 +1,4 @@
+import { ArrowDown, ArrowUp, ArrowUpDown, Info } from 'lucide-react';
 import { memo, useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +13,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-import { formatChange, formatMarketCap } from './utils';
+import { esgRatings, formatChange, formatMarketCap } from './utils';
 
 import type { ESGRating, Stock } from '@/types';
 
@@ -20,12 +21,29 @@ type Props = {
   stocks: Stock[];
 };
 
+type Sort = {
+  column: keyof Stock;
+  direction: 'asc' | 'desc';
+};
+
 /** Ordinarily, I would delegate this to an API, but for the purposes of a demo: */
-function computeSearchResults(stocks: Stock[], searchTerm: string): Stock[] {
+function computeSearchResults(stocks: Stock[], searchTerm: string, sort: Sort): Stock[] {
   const term = searchTerm.toLowerCase();
-  return stocks.filter((stock) => {
-    return stock.ticker.toLowerCase().includes(term) || stock.name.toLowerCase().includes(term);
-  });
+  return stocks
+    .filter((stock) => {
+      return stock.ticker.toLowerCase().includes(term) || stock.name.toLowerCase().includes(term);
+    })
+    .sort((a, b) => {
+      if (sort.column === 'esgRating') {
+        return (
+          (sort.direction === 'asc' ? 1 : -1) *
+          (esgRatings.indexOf(a.esgRating) - esgRatings.indexOf(b.esgRating))
+        );
+      }
+      if (a[sort.column] < b[sort.column]) return sort.direction === 'asc' ? -1 : 1;
+      if (a[sort.column] > b[sort.column]) return sort.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
 }
 
 const esgRatingColors: Record<ESGRating, string> = {
@@ -47,59 +65,112 @@ function ESGBadge({ rating }: { rating: ESGRating }) {
   );
 }
 
-const AssetsHeader = memo(() => (
-  // TODO: buttons should be made to sort on click
-  <TableHeader>
-    <TableRow>
-      <TableHead className="w-[180px]">
-        <Button type="button" variant="ghost" className="px-2 font-semibold hover:bg-transparent">
-          Ticker
-        </Button>
-      </TableHead>
-      <TableHead>
-        <Button type="button" variant="ghost" className="px-1 font-semibold hover:bg-transparent">
-          Company Name
-        </Button>
-      </TableHead>
-      <TableHead>
-        <Button type="button" variant="ghost" className="px-1 font-semibold hover:bg-transparent">
-          Price
-        </Button>
-      </TableHead>
-      <TableHead>
-        <Button type="button" variant="ghost" className="px-1 font-semibold hover:bg-transparent">
-          Change
-        </Button>
-      </TableHead>
-      <TableHead>
-        <Button type="button" variant="ghost" className="px-1 font-semibold hover:bg-transparent">
-          % Chg
-        </Button>
-      </TableHead>
-      <TableHead>
-        <Button type="button" variant="ghost" className="px-0 font-semibold hover:bg-transparent">
-          Mkt Cap
-        </Button>
-      </TableHead>
-      <TableHead>
-        <Button type="button" variant="ghost" className="px-0 font-semibold hover:bg-transparent">
-          Sector
-        </Button>
-      </TableHead>
+const SortIcon = memo(({ name, column, direction }: { name: keyof Stock } & Sort) => {
+  if (column !== name) return <ArrowUpDown className="ml-2 h-4 w-4" />;
+  if (direction === 'asc') return <ArrowUp className="ml-2 h-4 w-4" />;
+  return <ArrowDown className="ml-2 h-4 w-4" />;
+});
 
-      <TableHead>
-        <Button
-          // Consider a tooltip here
-          type="button"
-          variant="ghost"
-          className="cursor-help px-0 font-semibold hover:bg-transparent"
-        >
-          ESG Score (?)
-        </Button>
-      </TableHead>
-    </TableRow>
-  </TableHeader>
-));
+const AssetsHeader = memo(
+  ({ column, direction, onSort }: { onSort: (column: keyof Stock) => void } & Sort) => (
+    // TODO: buttons should be made to sort on click
+    <TableHeader>
+      <TableRow>
+        <TableHead className="w-[180px]">
+          <Button
+            type="button"
+            onClick={() => onSort('ticker')}
+            variant="ghost"
+            className="px-2 font-semibold hover:bg-transparent"
+          >
+            Ticker
+            <SortIcon name="ticker" column={column} direction={direction} />
+          </Button>
+        </TableHead>
+        <TableHead>
+          <Button
+            type="button"
+            onClick={() => onSort('name')}
+            variant="ghost"
+            className="px-1 font-semibold hover:bg-transparent"
+          >
+            Company Name
+            <SortIcon name="name" column={column} direction={direction} />
+          </Button>
+        </TableHead>
+        <TableHead>
+          <Button
+            type="button"
+            onClick={() => onSort('price')}
+            variant="ghost"
+            className="px-1 font-semibold hover:bg-transparent"
+          >
+            Price
+            <SortIcon name="price" column={column} direction={direction} />
+          </Button>
+        </TableHead>
+        <TableHead>
+          <Button
+            type="button"
+            onClick={() => onSort('change')}
+            variant="ghost"
+            className="px-1 font-semibold hover:bg-transparent"
+          >
+            Change
+            <SortIcon name="change" column={column} direction={direction} />
+          </Button>
+        </TableHead>
+        <TableHead>
+          <Button
+            type="button"
+            onClick={() => onSort('percentChange')}
+            variant="ghost"
+            className="px-1 font-semibold hover:bg-transparent"
+          >
+            % Chg
+            <SortIcon name="percentChange" column={column} direction={direction} />
+          </Button>
+        </TableHead>
+        <TableHead>
+          <Button
+            type="button"
+            onClick={() => onSort('marketCap')}
+            variant="ghost"
+            className="px-0 font-semibold hover:bg-transparent"
+          >
+            Mkt Cap
+            <SortIcon name="marketCap" column={column} direction={direction} />
+          </Button>
+        </TableHead>
+        <TableHead>
+          <Button
+            type="button"
+            onClick={() => onSort('sector')}
+            variant="ghost"
+            className="px-0 font-semibold hover:bg-transparent"
+          >
+            Sector
+            <SortIcon name="sector" column={column} direction={direction} />
+          </Button>
+        </TableHead>
+
+        <TableHead>
+          <Button
+            // Consider a tooltip here
+            type="button"
+            onClick={() => onSort('esgRating')}
+            variant="ghost"
+            className="cursor-help px-0 font-semibold hover:bg-transparent"
+          >
+            ESG Score
+            <SortIcon name="esgRating" column={column} direction={direction} />
+            <Info className="ml-2 h-4 w-4" />
+          </Button>
+        </TableHead>
+      </TableRow>
+    </TableHeader>
+  )
+);
 
 const AssetRow = memo(({ stock }: { stock: Stock }) => (
   <TableRow key={stock.ticker} className="h-[74px]">
@@ -133,17 +204,30 @@ const AssetRow = memo(({ stock }: { stock: Stock }) => (
 
 export function AssetsTable({ stocks }: Props) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [sort, setSort] = useState<{ column: keyof Stock; direction: 'asc' | 'desc' }>({
+    column: 'ticker',
+    direction: 'asc',
+  });
 
   const searchResults = useMemo(
-    () => computeSearchResults(stocks, searchTerm),
-    [stocks, searchTerm]
+    () => computeSearchResults(stocks, searchTerm, sort),
+    [stocks, searchTerm, sort]
   );
+
+  const handleSort = (column: keyof Stock) => {
+    if (column === sort.column) {
+      setSort((prev) => ({ ...prev, direction: prev.direction === 'asc' ? 'desc' : 'asc' }));
+    } else {
+      setSort({ column, direction: 'asc' });
+    }
+  };
 
   return (
     <section className="space-y-4 p-4">
       <div className="flex flex-col gap-4 sm:flex-row">
         <Input
           type="text"
+          value={searchTerm}
           placeholder="Search by ticker or company name"
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full lg:max-w-lg"
@@ -152,7 +236,7 @@ export function AssetsTable({ stocks }: Props) {
 
       <div className="rounded-md border">
         <Table>
-          <AssetsHeader />
+          <AssetsHeader onSort={handleSort} column={sort.column} direction={sort.direction} />
 
           <TableBody>
             {searchResults.map((stock) => (

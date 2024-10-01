@@ -1,3 +1,7 @@
+import type { ESGRating } from '@/types';
+
+export const esgRatings: ESGRating[] = ['AAA', 'AA', 'A', 'BBB', 'BB', 'B', 'CCC'];
+
 export const formatMarketCap = (marketCap: number) => {
   if (marketCap >= 1e12) return `$${(marketCap / 1e12).toFixed(2)}T`;
   if (marketCap >= 1e9) return `$${(marketCap / 1e9).toFixed(2)}B`;
