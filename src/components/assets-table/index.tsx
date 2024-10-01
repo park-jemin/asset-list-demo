@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { usePagination } from '@/hooks/use-pagination';
 
 import { ESGBadge } from './esg-badge';
@@ -157,18 +158,26 @@ const AssetsHeader = memo(
           </Button>
         </TableHead>
 
-        <TableHead>
-          <Button
-            // Consider a tooltip here
-            type="button"
-            onClick={() => onSort('esgRating')}
-            variant="ghost"
-            className="cursor-help px-0 font-semibold hover:bg-transparent"
-          >
-            ESG Score
-            <SortIcon name="esgRating" column={column} direction={direction} />
-            <Info className="ml-2 h-4 w-4" />
-          </Button>
+        <TableHead className="text-center">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  onClick={() => onSort('esgRating')}
+                  variant="ghost"
+                  className="cursor-help px-0 font-semibold hover:bg-transparent"
+                >
+                  ESG Score
+                  <SortIcon name="esgRating" column={column} direction={direction} />
+                  <Info className="ml-2 h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[200px]">
+                <p>MSCI ESG Rating</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </TableHead>
       </TableRow>
     </TableHeader>
@@ -199,7 +208,7 @@ const AssetRow = memo(({ stock }: { stock: Stock }) => (
     </TableCell>
     <TableCell>{formatMarketCap(stock.marketCap)}</TableCell>
     <TableCell>{stock.sector}</TableCell>
-    <TableCell>
+    <TableCell className="text-center">
       <ESGBadge rating={stock.esgRating} />
     </TableCell>
   </TableRow>
