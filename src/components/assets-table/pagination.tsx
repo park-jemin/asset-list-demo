@@ -31,17 +31,21 @@ export const Pagination = memo(
 
     return (
       <div className="flex items-center justify-between">
-        <span>
-          Showing {(current - 1) * itemsPerPage + 1} to{' '}
-          {Math.min(current * itemsPerPage, totalItems)} of {totalItems} results
-        </span>
+        {totalItems > 0 ? (
+          <span>
+            Showing {(current - 1) * itemsPerPage + 1} to{' '}
+            {Math.min(current * itemsPerPage, totalItems)} of {totalItems} results
+          </span>
+        ) : (
+          <span>No results found</span>
+        )}
         <nav className="flex space-x-2">
           <Button
             key="first"
             aria-label="Go to first page"
             variant="outline"
             onClick={() => onChange(1)}
-            disabled={current === 1}
+            disabled={current === 1 || totalItems === 0}
           >
             <ChevronsLeft className="h-4 w-4" />
           </Button>
@@ -51,7 +55,7 @@ export const Pagination = memo(
             aria-label="Go to previous page"
             variant="outline"
             onClick={() => onChange(Math.max(current - 1, 1))}
-            disabled={current === 1}
+            disabled={current === 1 || totalItems === 0}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -72,7 +76,7 @@ export const Pagination = memo(
             aria-label="Go to next page"
             variant="outline"
             onClick={() => onChange(Math.min(current + 1, totalPages))}
-            disabled={current === totalPages}
+            disabled={current === totalPages || totalItems === 0}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -82,7 +86,7 @@ export const Pagination = memo(
             aria-label="Go to last page"
             variant="outline"
             onClick={() => onChange(totalPages)}
-            disabled={current === totalPages}
+            disabled={current === totalPages || totalItems === 0}
           >
             <ChevronsRight className="h-4 w-4" />
           </Button>
