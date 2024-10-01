@@ -272,7 +272,11 @@ export function AssetsTable({ stocks, sectors }: Props) {
             </Button>
           </PopoverTrigger>
 
-          <FilterMenu className="w-80" sectors={sectors} onApply={applyFilters} />
+          <FilterMenu
+            className="w-screen min-w-80 sm:w-80"
+            sectors={sectors}
+            onApply={applyFilters}
+          />
         </Popover>
       </div>
 

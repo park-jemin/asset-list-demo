@@ -1,3 +1,5 @@
+import { type ReactNode, useState } from 'react';
+
 import {
   Accordion,
   AccordionContent,
@@ -8,18 +10,28 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { PopoverClose, PopoverContent } from '@/components/ui/popover';
-import { useState } from 'react';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
+import { ESGBadge } from './esg-badge';
 import { esgRatings } from './utils';
 
 import type { ESGRating } from '@/types';
-import { ESGBadge } from './esg-badge';
 
 type Props = {
   className?: string;
   sectors: string[];
   onApply: (filters: { sectors: string[]; esg: ESGRating[] }) => void;
 };
+
+function Positioning({ className, children }: { className?: string; children: ReactNode }) {
+  const isEndAligned = useMediaQuery('(min-width: 640px) and (max-width: 1023px)');
+  const alignment = isEndAligned ? 'end' : 'center';
+  return (
+    <PopoverContent className={className} align={alignment}>
+      {children}
+    </PopoverContent>
+  );
+}
 
 export function FilterMenu({ sectors, onApply, className }: Props) {
   const [tempSectorFilters, setTempSectorFilters] = useState<string[]>([]);
@@ -30,7 +42,7 @@ export function FilterMenu({ sectors, onApply, className }: Props) {
   };
 
   return (
-    <PopoverContent className={className}>
+    <Positioning className={className}>
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="sectors">
           <AccordionTrigger>Sectors</AccordionTrigger>
@@ -49,7 +61,7 @@ export function FilterMenu({ sectors, onApply, className }: Props) {
                       );
                     }}
                   />
-                  <Label htmlFor={`sector-${sector}`} className="font-normal">
+                  <Label htmlFor={`sector-${sector}`} className="py-1 font-normal">
                     {sector}
                   </Label>
                 </div>
@@ -75,7 +87,7 @@ export function FilterMenu({ sectors, onApply, className }: Props) {
                       );
                     }}
                   />
-                  <Label htmlFor={`esg-${rating}`} className="flex items-center font-normal">
+                  <Label htmlFor={`esg-${rating}`} className="flex items-center py-1 font-normal">
                     <ESGBadge rating={rating} />
                   </Label>
                 </div>
@@ -90,6 +102,6 @@ export function FilterMenu({ sectors, onApply, className }: Props) {
           Apply Filters
         </Button>
       </PopoverClose>
-    </PopoverContent>
+    </Positioning>
   );
 }
