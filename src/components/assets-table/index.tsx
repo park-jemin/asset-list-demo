@@ -8,16 +8,21 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { usePagination } from '@/hooks/use-pagination';
 
 import { ESGBadge } from './esg-badge';
 import { FilterMenu } from './filter-menu';
+import { Pagination } from './pagination';
 import { esgRatings, formatChange, formatMarketCap } from './utils';
 
 import type { ESGRating, Stock } from '@/types';
+
+const ITEMS_PER_PAGE = 10;
 
 type Props = {
   stocks: Stock[];
@@ -216,6 +221,13 @@ export function AssetsTable({ stocks, sectors }: Props) {
     [stocks, searchTerm, filters, sort]
   );
 
+  const {
+    data: paginatedStocks,
+    page,
+    setPage,
+    totalPages,
+  } = usePagination(searchResults, { itemsPerPage: ITEMS_PER_PAGE });
+
   const handleSort = (column: keyof Stock) => {
     if (column === sort.column) {
       setSort((prev) => ({ ...prev, direction: prev.direction === 'asc' ? 'desc' : 'asc' }));
@@ -257,10 +269,25 @@ export function AssetsTable({ stocks, sectors }: Props) {
           <AssetsHeader onSort={handleSort} column={sort.column} direction={sort.direction} />
 
           <TableBody>
-            {searchResults.map((stock) => (
+            {paginatedStocks.map((stock) => (
               <AssetRow key={stock.ticker} stock={stock} />
             ))}
           </TableBody>
+
+          <TableFooter>
+            {/* Tbh I'm conflicted between keeping this part of the table or taking it out */}
+            <TableRow>
+              <TableCell colSpan={8}>
+                <Pagination
+                  current={page}
+                  totalPages={totalPages}
+                  totalItems={searchResults.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  onChange={setPage}
+                />
+              </TableCell>
+            </TableRow>
+          </TableFooter>
         </Table>
       </div>
     </section>
