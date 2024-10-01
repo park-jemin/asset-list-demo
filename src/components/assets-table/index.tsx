@@ -1,9 +1,9 @@
-import { ArrowDown, ArrowUp, ArrowUpDown, Info } from 'lucide-react';
-import { memo, useMemo, useState } from 'react';
+import { ArrowDown, ArrowUp, ArrowUpDown, Info, ListFilter } from 'lucide-react';
+import { memo, useCallback, useMemo, useState } from 'react';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Table,
   TableBody,
@@ -13,12 +13,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
+import { ESGBadge } from './esg-badge';
+import { FilterMenu } from './filter-menu';
 import { esgRatings, formatChange, formatMarketCap } from './utils';
 
 import type { ESGRating, Stock } from '@/types';
 
 type Props = {
   stocks: Stock[];
+  sectors: string[];
 };
 
 type Sort = {
@@ -26,12 +29,26 @@ type Sort = {
   direction: 'asc' | 'desc';
 };
 
+type Filter = {
+  sectors: string[];
+  esg: ESGRating[];
+};
+
 /** Ordinarily, I would delegate this to an API, but for the purposes of a demo: */
-function computeSearchResults(stocks: Stock[], searchTerm: string, sort: Sort): Stock[] {
-  const term = searchTerm.toLowerCase();
+function computeSearchResults(
+  stocks: Stock[],
+  searchTerm: string,
+  filters: Filter,
+  sort: Sort
+): Stock[] {
   return stocks
     .filter((stock) => {
-      return stock.ticker.toLowerCase().includes(term) || stock.name.toLowerCase().includes(term);
+      const matchesSearch =
+        stock.ticker.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        stock.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSector = filters.sectors.length === 0 || filters.sectors.includes(stock.sector);
+      const matchesESG = filters.esg.length === 0 || filters.esg.includes(stock.esgRating);
+      return matchesSearch && matchesSector && matchesESG;
     })
     .sort((a, b) => {
       if (sort.column === 'esgRating') {
@@ -44,25 +61,6 @@ function computeSearchResults(stocks: Stock[], searchTerm: string, sort: Sort): 
       if (a[sort.column] > b[sort.column]) return sort.direction === 'asc' ? 1 : -1;
       return 0;
     });
-}
-
-const esgRatingColors: Record<ESGRating, string> = {
-  AAA: 'bg-green-800/90 text-white',
-  AA: 'bg-green-700 text-white',
-  A: 'bg-yellow-500 text-black',
-  BBB: 'bg-yellow-400 text-black',
-  BB: 'bg-yellow-300 text-black',
-  B: 'bg-red-500 text-white',
-  CCC: 'bg-red-600 text-white',
-};
-
-function ESGBadge({ rating }: { rating: ESGRating }) {
-  const colors = esgRatingColors[rating];
-  return (
-    <Badge variant="no-hover:default" className={`${colors} w-12 justify-center`}>
-      {rating}
-    </Badge>
-  );
 }
 
 const SortIcon = memo(({ name, column, direction }: { name: keyof Stock } & Sort) => {
@@ -202,16 +200,20 @@ const AssetRow = memo(({ stock }: { stock: Stock }) => (
   </TableRow>
 ));
 
-export function AssetsTable({ stocks }: Props) {
+export function AssetsTable({ stocks, sectors }: Props) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sort, setSort] = useState<{ column: keyof Stock; direction: 'asc' | 'desc' }>({
     column: 'ticker',
     direction: 'asc',
   });
+  const [filters, setFilters] = useState<Filter>({
+    sectors: [],
+    esg: [],
+  });
 
   const searchResults = useMemo(
-    () => computeSearchResults(stocks, searchTerm, sort),
-    [stocks, searchTerm, sort]
+    () => computeSearchResults(stocks, searchTerm, filters, sort),
+    [stocks, searchTerm, filters, sort]
   );
 
   const handleSort = (column: keyof Stock) => {
@@ -221,6 +223,10 @@ export function AssetsTable({ stocks }: Props) {
       setSort({ column, direction: 'asc' });
     }
   };
+
+  const applyFilters = useCallback((filters: Filter) => {
+    setFilters(filters);
+  }, []);
 
   return (
     <section className="space-y-4 p-4">
@@ -232,6 +238,18 @@ export function AssetsTable({ stocks }: Props) {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full lg:max-w-lg"
         />
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline">
+              <ListFilter className="mr-2 h-4 w-4" /> Filters
+            </Button>
+          </PopoverTrigger>
+
+          <PopoverContent className="w-80">
+            <FilterMenu sectors={sectors} onApply={applyFilters} />
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="rounded-md border">
