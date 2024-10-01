@@ -1,9 +1,7 @@
+import AssetsPage from './pages/assets.page';
+
 function App() {
-  return (
-    <div>
-      <h1>Hello world</h1>
-    </div>
-  )
+  return <AssetsPage />;
 }
 
-export default App
+export default App;
