@@ -10,7 +10,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuthentication } from '@/hooks/use-authentication';
-import { navigate } from '@/hooks/use-router';
 
 import type { FormEventHandler } from 'react';
 
@@ -25,7 +24,7 @@ export default function LoginPage() {
     const password = (form.elements.namedItem('password') as HTMLInputElement).value;
 
     // Ignore failing cases for now, don't need to be exhaustive
-    login({ email, password, onSuccess: () => navigate('/assets') });
+    login({ email, password });
   };
 
   return (

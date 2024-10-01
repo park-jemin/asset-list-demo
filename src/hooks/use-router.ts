@@ -1,5 +1,7 @@
 import { useSyncExternalStore } from 'react';
 
+// WE ARE RIPPING THIS OUT BECAUSE OF GITHUB PAGES
+
 /**
  * History API docs @see https://developer.mozilla.org/en-US/docs/Web/API/History
  */

@@ -13,11 +13,11 @@ function Routes() {
   const { pathname } = useRouter();
 
   switch (pathname) {
-    case '/login':
-      return <LoginPage />;
     case '/assets':
     case '/':
       return <AssetsPage />;
+    case '/login':
+      return <LoginPage />;
     default:
       return <NotFoundPage />;
   }

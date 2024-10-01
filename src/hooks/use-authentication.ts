@@ -21,11 +21,9 @@ export function useAuthentication() {
     ({
       email,
       password,
-      onSuccess,
     }: {
       email: string;
       password: string;
-      onSuccess?: () => void;
     }) => {
       if (email !== DEMO_EMAIL || password !== DEMO_PASSWORD) {
         return;
@@ -34,19 +32,13 @@ export function useAuthentication() {
       const now = new Date();
 
       setToken({ expires: now.getTime() + ttl });
-
-      onSuccess?.();
     },
     [setToken]
   );
 
-  const logout = useCallback(
-    ({ onSuccess }: { onSuccess?: () => void } = {}) => {
-      removeToken();
-      onSuccess?.();
-    },
-    [removeToken]
-  );
+  const logout = useCallback(() => {
+    removeToken();
+  }, [removeToken]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: we know what we're doing
   useEffect(() => {
